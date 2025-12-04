@@ -3,9 +3,25 @@ Project's 'Etch-a-Sketch' assignment in their Foundations course;
 see www.theodinproject.com/lessons/foundations-etch-a-sketch for more.
 */
 
+const verbose = false;
+
+function log(what) {
+    if (verbose) {
+        console.log(what);
+    }
+}
+
+function enterHandler(evt) {
+    log(evt);
+    evt.srcElement.classList.add('sketched');
+}
+
+function leaveHandler(evt) {
+    log(evt);
+}
 
 function setupGrid(numCells = 16) {
-    console.log(`Setting up a ${numCells} × ${numCells} grid ...`);
+    log(`Setting up a ${numCells} × ${numCells} grid ...`);
     const sketchpad = document.querySelector('#sketchpad');
 
     let rowNode = null;
@@ -17,18 +33,20 @@ function setupGrid(numCells = 16) {
         rowNode = document.createElement('div');
         rowNode.classList.add('sketch-row');
         for (let column = 0; column < numCells; column ++) {
-            console.log(`row ${row}, column ${column}`);
+            log(`row ${row}, column ${column}`);
             cellNode = document.createElement('div');
+            cellNode.addEventListener('mouseenter', enterHandler);
+            cellNode.addEventListener('mouseLeave', leaveHandler);
             rowNode.appendChild(cellNode);
         }
         sketchpad.appendChild(rowNode);
     }
-    console.log('  ... grid setup finished!');
+    log('  ... grid setup finished!');
 }
 
 function setButHandler(evt) {
     evt.preventDefault();
-    console.log('Responding to "Set" click ...');
+    log('Responding to "Set" click ...');
 
     const numCellsNode = document.querySelector('#num-cells');
     const numCellsStr = numCellsNode.value;
@@ -36,21 +54,35 @@ function setButHandler(evt) {
 
     if (isNaN(numCells)) {
         alert(`Cannot set size of grid: "${numCellsStr}" is not an interger!`);
-    } else {
-        setupGrid(numCells);
+        return;
     }
-    console.log("... done responding!");
+
+    if ((numCells < 2) || (numCells > 100)) {
+        alert('Number of cells must be between 2 and 100!');
+        return;
+    }
+    
+    setupGrid(numCells);
+    
+    log("... done responding!");
 }
 
+function enterKeyHandler (event) {
+    log(`enterKeyHandler called! Event is ${event}`);
+    if (event.keyCode === 13) {
+        document.querySelector("#set-size").click();
+    }
+};
+
 function setup() {
-    console.log('Setting up Etch-a-Sketch ...');
+    log('Setting up Etch-a-Sketch ...');
     setupGrid();
 
-    console.log('Attaching handlers to buttons ...');
-    const setBut = document.querySelector('#set-size');
-    setBut.onclick = setButHandler;
+    log('Attaching handlers ...');
+    document.querySelector('#set-size').onclick = setButHandler;
+    document.querySelector('#num-cells').onkeydown = enterKeyHandler;
 
-    console.log('Setup complete!');
+    log('Setup complete!');
 }
 
 setup();
